@@ -1,5 +1,4 @@
 ----------------------------------------------------------------------------------
--- Company: MAHDA 
 -- Engineer: Hosseinali
 -- Create Date: 02/09/2024 04:33:33 PM
 -- Module Name: GPS_simulator - Behavioral
@@ -23,8 +22,8 @@ generic
 );
     Port (     
             clk         : in STD_LOGIC;
-            busy        : in STD_LOGIC;
-            send        : out STD_LOGIC;
+            tREADY      : in STD_LOGIC;
+            tVALID      : out STD_LOGIC;
             o_data      : out STD_LOGIC_VECTOR (7 downto 0)
         );
 end GPS_simulator;
@@ -55,7 +54,6 @@ constant binary_second_sentence : STD_LOGIC_VECTOR(second_sentence_msb downto 0)
 constant Send_interval_cycle    : integer := IP_FREQUENCY/Send_interval; 
 signal cnt : unsigned(29 downto 0) := (others=>'0'); 
 signal character_index : unsigned(7 downto 0) := to_unsigned(1,8);
-signal busy_pre : std_logic := '0'; 
 
 type frsplitterType is array(1 to Num_of_First_sentence_letters) of std_logic_vector(7 downto 0);
 signal splt_First_sentence : frsplitterType := (others=>(others=>'0'));
@@ -74,8 +72,7 @@ end generate;
 process(clk)
 begin
 if rising_edge(clk) then
-    send        <= '0';
-    busy_pre    <= busy;  
+    tVALID        <= '0';
     if(FSM /= idle) then 
         cnt         <= cnt +1;  
     end if;  
@@ -83,32 +80,32 @@ if rising_edge(clk) then
     case FSM is 
         when idle => 
             FSM     <= sending_first; 
-            if(busy = '1') then 
+            if(tREADY = '0') then 
                 FSM     <= idle; 
             end if; 
         when sending_first => 
-            send    <= '1'; 
+            tVALID  <= '1'; 
             o_data  <= splt_First_sentence(to_integer(character_index));
             FSM     <= gap; 
         when gap => 
-            if(busy = '0' and busy_pre = '1') then -- and busy_pre = '1' 
+            if(tREADY ='1') then
                 FSM             <= sending_first; 
                 character_index <= character_index +1; 
             end if; 
-            if(character_index = to_unsigned(Num_of_First_sentence_letters,8) and busy = '0' and busy_pre = '1') then --and busy_pre = '1'
+            if(character_index = to_unsigned(Num_of_First_sentence_letters,8) and tREADY = '0' and busy_pre = '1') then --and busy_pre = '1'
                 FSM             <= sending_sec;
                 character_index <= to_unsigned(1,8);
             end if; 
         when sending_sec => 
-            send    <= '1'; 
+            tVALID    <= '1'; 
             o_data  <= splt_second_sentence(to_integer(character_index));
             FSM     <= gap_1; 
         when gap_1 => 
-            if(busy = '0' and busy_pre = '1') then --and busy_pre = '1'
+            if(tREADY ='1') then
                 FSM             <= sending_sec; 
                 character_index <= character_index +1; 
             end if;             
-            if(character_index = to_unsigned(Num_of_second_sentence_letters,8) and busy = '0' and busy_pre = '1' ) then --and busy_pre = '1'
+            if(character_index = to_unsigned(Num_of_second_sentence_letters,8) and tREADY = '1' ) then
                 FSM             <= interval;
                 character_index <= to_unsigned(1,8);
             end if;         
