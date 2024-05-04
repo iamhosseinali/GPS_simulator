@@ -94,7 +94,7 @@ if(nRST='0') then
 
 else 
     if rising_edge(clk) then
-        tVALID        <= '0';
+        AXIS_tVALID        <= '0';
 
         --- cnt counter is used for interval cal so it counts when the FSM is not idle ---- 
         if(FSM /= idle) then 
@@ -105,34 +105,34 @@ else
         case FSM is 
             when idle => 
                 FSM     <= sending_first; 
-                if(tREADY = '0') then --- only when the next module is ready the data will be sent
+                if(AXIS_tREADY = '0') then --- only when the next module is ready the data will be sent
                     FSM     <= idle; 
                 end if; 
             when sending_first => 
-                tVALID  <= '1'; 
-                tDATA   <= splt_First_sentence(to_integer(character_index)); --- charecters in binary format will be sent one by one 
+                AXIS_tVALID  <= '1'; 
+                AXIS_tDATA   <= splt_First_sentence(to_integer(character_index)); --- charecters in binary format will be sent one by one 
                 FSM     <= gap; 
             --- this is the gap between each character of the fisrt sentence ---- 
             when gap => 
-                if(tREADY ='1') then
+                if(AXIS_tREADY ='1') then
                     FSM             <= sending_first; 
                     character_index <= character_index +1; 
                 end if; 
-                if(character_index = to_unsigned(first_sent_cnt,8) and tREADY = '1') then
+                if(character_index = to_unsigned(first_sent_cnt,8) and AXIS_tREADY = '1') then
                     FSM             <= sending_sec;
                     character_index <= to_unsigned(1,8);
                 end if; 
             when sending_sec => 
-                tVALID  <= '1'; 
-                tDATA   <= splt_second_sentence(to_integer(character_index));
+                AXIS_tVALID  <= '1'; 
+                AXIS_tDATA   <= splt_second_sentence(to_integer(character_index));
                 FSM     <= gap_1; 
             --- this is the gap between each character of the second sentence ----     
             when gap_1 => 
-                if(tREADY ='1') then
+                if(AXIS_tREADY ='1') then
                     FSM             <= sending_sec; 
                     character_index <= character_index +1; 
                 end if;             
-                if(character_index = to_unsigned(sec_sent_cnt,8) and tREADY = '1' ) then
+                if(character_index = to_unsigned(sec_sent_cnt,8) and AXIS_tREADY = '1' ) then
                     FSM             <= interval;
                     character_index <= to_unsigned(1,8);
                 end if; 
