@@ -92,7 +92,7 @@ if rising_edge(clk) then
                 FSM             <= sending_first; 
                 character_index <= character_index +1; 
             end if; 
-            if(character_index = to_unsigned(Num_of_First_sentence_letters,8) and tREADY = '0' and busy_pre = '1') then --and busy_pre = '1'
+            if(character_index = to_unsigned(Num_of_First_sentence_letters,8) and tREADY = '1') then --and busy_pre = '1'
                 FSM             <= sending_sec;
                 character_index <= to_unsigned(1,8);
             end if; 
