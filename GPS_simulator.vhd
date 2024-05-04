@@ -18,7 +18,7 @@ generic
     Send_interval       : integer   := 1; -- How many NMEA sentences should be sent per second. 
     First_sentence      : string    := "$GPGGA,161229.487,3723.2475,N,12158.3416,W,1,07,1.0,9.0,M,,,,0000*18";
     Second_sentence     : string    := "$GPZDA,172809.45,12,07,1996,00,00*45";
-    send_two_sentences  : bool      := true
+    send_two_sentences  : boolean   := true
 );
     Port (     
             clk              : in STD_LOGIC;
@@ -124,7 +124,7 @@ else
                     character_index <= to_unsigned(1,8);
                     if(send_two_sentences = false) then 
                        FSM      <= interval; 
-                    end if  
+                    end if;  
                 end if; 
             when sending_sec => 
                 AXIS_tVALID  <= '1'; 
