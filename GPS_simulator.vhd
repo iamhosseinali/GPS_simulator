@@ -20,11 +20,11 @@ generic
     Second_sentence : string    := "$GPZDA,172809.45,12,07,1996,00,00*45"
 );
     Port (     
-            clk         : in STD_LOGIC;
-            nRST        : in STD_LOGIC;
-            tREADY      : in STD_LOGIC;
-            tVALID      : out STD_LOGIC;
-            tDATA       : out STD_LOGIC_VECTOR (7 downto 0)
+            clk              : in STD_LOGIC;
+            nRST             : in STD_LOGIC;
+            AXIS_tREADY      : in STD_LOGIC;
+            AXIS_tVALID      : out STD_LOGIC;
+            AXIS_tDATA       : out STD_LOGIC_VECTOR (7 downto 0)
         );
 end GPS_simulator;
 
